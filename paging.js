@@ -142,25 +142,52 @@ Ext.onReady(function(){
         bodyStyle:'padding:5px 5px 0',
         width: 800,
         fieldDefaults: {
-            msgTarget: 'side',
-            labelWidth: 100
+            msgTarget: 'side'
         },
         defaultType: 'textfield',
         defaults: {
             anchor: '30%'
         },
+        layout: 'hbox',
 
         items: [{
             fieldLabel: '保有ポイント数',
+            labelWidth: 100,
             name: 'points',
             allowBlank:false,
-            value: '1'
+            value: '1',
+            width: 200
+        },{
+            fieldLabel: '除外ワード（スペース区切り）',
+            labelWidth: 180,
+            name: 'exWords',
+            allowBlank:true,
+            value: '',
+            width: 500
         }],
 
         buttons: [{
             text: '検索',
             handler: function(){
-              store.getProxy().extraParams.price_to = simple.getForm().getValues()["points"];
+              // フォーム値の取得
+              var formValues = simple.getForm().getValues();
+
+              // 除外ワードの処理
+              var exWords = formValues["exWords"];
+              var strExWords = "";
+              if(exWords.trim().length !== 0) {
+                var arrExWords = exWords.trim().split(" ");
+                var arrExWordsLength = arrExWords.length;
+                for(var i=0; i<arrExWordsLength; i++) {
+                  if(strExWords !== "") {
+                    strExWords = strExWords + " ";
+                  }
+                  strExWords = strExWords + "-" + arrExWords[i];
+                }
+              }
+
+              store.getProxy().extraParams.price_to = formValues["points"];
+              store.getProxy().extraParams.query = strExWords;
               store.loadPage(1);
             }
         }],
